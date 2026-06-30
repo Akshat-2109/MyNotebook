@@ -5,6 +5,7 @@ const path = require('path');
 const { initDB } = require('./db/init');
 
 const app = express();
+app.use(express.static("public"));
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
