@@ -1,16 +1,19 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
-console.log("DATABASE_URL exists:", !!process.env.DATABASE_URL);
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false, requestCert: false }
+  ssl: { rejectUnauthorized: false }
 });
+
+// Override SSL — ignore certificate chain errors
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 async function initDB() {
   const client = await pool.connect();
   try {
     await client.query(`CREATE EXTENSION IF NOT EXISTS pgcrypto;`);
+
     await client.query(`
       CREATE TABLE IF NOT EXISTS users (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -57,7 +60,6 @@ async function initDB() {
       CREATE INDEX IF NOT EXISTS idx_otp_email ON otp_tokens(email);
     `);
 
-    // Add is_verified column if upgrading from older version
     await client.query(`
       ALTER TABLE users ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT FALSE;
     `);
