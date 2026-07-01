@@ -1,39 +1,113 @@
-# ✦ MyNotebook
+# MyNotebook
 
-Multi-user personal notebook with OTP email verification, forgot password, rich text editor, and cloud database.
+MyNotebook is a multi-user personal notebook web application built with Node.js, Express, and PostgreSQL. It lets users create categories, write note pages, store content in a cloud database, and search through saved notes.
 
-## ✨ Features
-- 👤 Open registration with **email verification OTP**
-- 🔑 **Forgot password** via email OTP
-- 📂 Categories with custom colors
-- 📝 Rich block editor: Paragraph, H1, H2, Bullets, Numbered, Checklist, Quote, Code, Divider
-- 🔍 Full-text search
-- ☁️ PostgreSQL (Supabase) — data saved forever
+## Features
 
-## 🚀 Setup
+- User registration, login, logout, and session-based authentication
+- Password change for logged-in users
+- Categories with custom colors
+- Pages linked to categories for organizing notes
+- Block-based note content with text and checklist-style entries
+- Search across page titles and note content
+- Persistent storage using PostgreSQL
+- Basic stats for categories, blocks, and word count
 
-### 1. Get Gmail App Password (for sending OTPs)
-1. Go to myaccount.google.com → Security → 2-Step Verification → turn ON
-2. Then: Security → App Passwords → Select app: Mail → Generate
-3. Copy the 16-character password shown
+## Tech Stack
 
-### 2. Configure .env
-```
-DATABASE_URL=postgresql://postgres:YOUR_PASS@db.xxx.supabase.co:5432/postgres?sslmode=require
-SESSION_SECRET=any-random-string
+- Node.js
+- Express.js
+- PostgreSQL
+- pg (Postgres client)
+- express-session
+- bcryptjs
+- dotenv
+
+## Project Structure
+
+- server.js — main Express server entry point
+- routes/auth.js — authentication routes
+- routes/api.js — note, category, search, and account routes
+- db/init.js — database initialization and table creation
+- public/ — frontend HTML files
+- utils/ — helper modules
+
+## Prerequisites
+
+- Node.js 18 or newer
+- A PostgreSQL database
+
+## Environment Variables
+
+Create a .env file in the project root:
+
+```env
+DATABASE_URL=postgresql://username:password@host:5432/database?sslmode=require
+SESSION_SECRET=your-random-session-secret
 NODE_ENV=development
-MAIL_USER=yourgmail@gmail.com
-MAIL_PASS=xxxx-xxxx-xxxx-xxxx
+PORT=3000
 ```
 
-### 3. Run
+### Notes
+
+- The application automatically creates the required database tables on startup.
+- If your PostgreSQL provider requires SSL, keep the sslmode=require part in the connection string.
+
+## Installation
+
 ```bash
 npm install
+```
+
+## Running the App
+
+```bash
 npm start
 ```
 
-## ☁️ Deploy on Render
-1. Push to GitHub
-2. render.com → New Web Service → connect repo
-3. Build: `npm install` | Start: `npm start`
-4. Add env vars: DATABASE_URL, SESSION_SECRET, NODE_ENV=production, MAIL_USER, MAIL_PASS
+Then open:
+
+```text
+http://localhost:3000
+```
+
+## API Highlights
+
+- GET /health — health check
+- POST /auth/register — create an account
+- POST /auth/login — sign in
+- POST /auth/logout — sign out
+- POST /auth/change-password — update password
+- GET /api/stats — get note statistics
+- GET /api/categories — list categories
+- POST /api/categories — create a category
+- GET /api/search?q=term — search notes
+
+## Deployment
+
+### Render
+
+1. Push the project to GitHub.
+2. Create a new Web Service on Render.
+3. Connect the repository.
+4. Set the build command to:
+
+```bash
+npm install
+```
+
+5. Set the start command to:
+
+```bash
+npm start
+```
+
+6. Add the same environment variables in Render's dashboard:
+   - DATABASE_URL
+   - SESSION_SECRET
+   - NODE_ENV=production
+   - PORT=10000 (Render will provide its own port automatically, so this is optional)
+
+## License
+
+This project is for personal or educational use.
