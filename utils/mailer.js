@@ -2,15 +2,12 @@ const nodemailer = require('nodemailer');
 require('dotenv').config();
 
 const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
+  host: 'smtp.resend.com',
+  port: 587,
+  secure: false,
   auth: {
-    user: process.env.MAIL_USER,
+    user: 'resend',
     pass: process.env.MAIL_PASS
-  },
-  tls: {
-    rejectUnauthorized: false
   }
 });
 
@@ -50,7 +47,7 @@ async function sendOTP(email, otp, type) {
 </body></html>`;
 
   const info = await transporter.sendMail({
-    from: `"MyNotebook" <${process.env.MAIL_USER}>`,
+    from: '"MyNotebook" <onboarding@resend.dev>',
     to: email,
     subject,
     html
