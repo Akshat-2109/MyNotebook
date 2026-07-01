@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyNotebook</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0d14;--surface:#0f1320;--s2:#151929;--s3:#1c2130;
+  --border:#ffffff0f;--border2:#ffffff18;
+  --accent:#6366f1;--a2:#8b5cf6;--a3:#c084fc;
+  --text:#f1f5f9;--muted:#94a3b8;--dim:#475569;
+  --green:#22c55e;--red:#ef4444;--yellow:#f59e0b;
+  --sw:264px;--nh:56px;--r:12px;--t:.2s ease
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;display:flex;flex-direction:column}
+
+/* NAV */
+nav{height:var(--nh);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:10px;z-index:100;flex-shrink:0;backdrop-filter:blur(10px)}
+.logo{font-family:'Playfair Display',serif;font-size:18px;background:linear-gradient(135deg,#818cf8,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;cursor:pointer;white-space:nowrap;margin-right:4px;flex-shrink:0}
+
+/* SEARCH */
+.sw{flex:1;max-width:480px;position:relative}
+.si{width:100%;background:#ffffff07;border:1px solid var(--border);border-radius:10px;padding:8px 14px 8px 36px;color:var(--text);font-size:13.5px;font-family:'Inter',sans-serif;outline:none;transition:border-color var(--t),background var(--t)}
+.si::placeholder{color:var(--dim)}
+.si:focus{border-color:rgba(99,102,241,.5);background:#ffffff0c}
+.si-ic{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--dim);pointer-events:none}
+.sr{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);max-height:360px;overflow-y:auto;z-index:200;display:none;box-shadow:0 12px 40px rgba(0,0,0,.6);backdrop-filter:blur(20px)}
+.sr.open{display:block}
+.sri{padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--border);transition:background var(--t)}
+.sri:last-child{border-bottom:none}
+.sri:hover{background:var(--s2)}
+.sri-cat{font-size:11px;color:#818cf8;margin-bottom:2px;text-transform:uppercase;letter-spacing:.5px}
+.sri-tx{font-size:13px;color:var(--text);line-height:1.4}
+.sri-tx mark{background:rgba(99,102,241,.25);color:#a5b4fc;border-radius:3px;padding:0 3px}
+.sr-empty{padding:16px;text-align:center;color:var(--muted);font-size:13px}
+.ns{flex:1}
+.bi{width:34px;height:34px;background:transparent;border:none;border-radius:9px;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background var(--t),color var(--t);flex-shrink:0}
+.bi:hover{background:var(--s2);color:var(--text)}
+
+/* USER MENU */
+.umw{position:relative;flex-shrink:0}
+.ua{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--a2));border:none;cursor:pointer;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif;transition:opacity var(--t);box-shadow:0 0 0 2px rgba(99,102,241,.3)}
+.ua:hover{opacity:.85}
+.ud{position:absolute;top:calc(100% + 8px);right:0;width:220px;background:var(--surface);border:1px solid var(--border2);border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.6);z-index:200;overflow:hidden;display:none;backdrop-filter:blur(20px)}
+.ud.open{display:block}
+.udh{padding:14px;border-bottom:1px solid var(--border);background:var(--s2)}
+.udn{font-size:14px;font-weight:600;color:var(--text)}
+.ude{font-size:11px;color:var(--muted);margin-top:2px}
+.udi{padding:10px 14px;cursor:pointer;font-size:13px;color:var(--muted);transition:background var(--t),color var(--t);display:flex;align-items:center;gap:9px}
+.udi:hover{background:var(--s2);color:var(--text)}
+.udi.danger:hover{color:var(--red)}
+
+/* LAYOUT */
+.ab{display:flex;flex:1;overflow:hidden}
+
+/* SIDEBAR */
+.sb{width:var(--sw);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;transition:width var(--t),opacity var(--t);overflow:hidden}
+.sb.hidden{width:0;opacity:0}
+.sbh{padding:14px 12px 8px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.sbt{font-size:11px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:1px}
+.bnc{background:linear-gradient(135deg,var(--accent),var(--a2));border:none;border-radius:7px;color:#fff;font-size:11px;font-weight:600;padding:5px 11px;cursor:pointer;display:flex;align-items:center;gap:4px;white-space:nowrap;transition:opacity var(--t);box-shadow:0 2px 8px rgba(99,102,241,.3)}
+.bnc:hover{opacity:.85}
+.cl{flex:1;overflow-y:auto;padding:4px 8px}
+.ci{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:9px;cursor:pointer;transition:background var(--t)}
+.ci:hover{background:var(--s2)}
+.ci.active{background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.2)}
+.ci.active .cn{color:#a5b4fc}
+.cd{width:9px;height:9px;border-radius:50%;flex-shrink:0;box-shadow:0 0 6px currentColor}
+.cn{flex:1;font-size:13.5px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ca{display:none;gap:2px}
+.ci:hover .ca{display:flex}
+.cab{width:22px;height:22px;background:none;border:none;border-radius:5px;color:var(--dim);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:background var(--t),color var(--t)}
+.cab:hover{background:var(--border2);color:var(--text)}
+.cab.del:hover{color:var(--red)}
+.sbf{padding:8px;border-top:1px solid var(--border);flex-shrink:0}
+.tsb{width:100%;background:none;border:none;border-radius:9px;padding:9px 10px;display:flex;align-items:center;gap:8px;color:var(--dim);cursor:pointer;font-size:12.5px;font-family:'Inter',sans-serif;transition:background var(--t),color var(--t)}
+.tsb:hover{background:var(--s2);color:var(--muted)}
+.esb{position:fixed;left:10px;bottom:18px;width:36px;height:36px;background:var(--surface);border:1px solid var(--border2);border-radius:9px;color:var(--muted);cursor:pointer;display:none;align-items:center;justify-content:center;z-index:50;transition:background var(--t);box-shadow:0 4px 12px rgba(0,0,0,.4)}
+.esb:hover{background:var(--s2);color:var(--text)}
+.esb.visible{display:flex}
+
+/* MAIN */
+.mn{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+/* DASHBOARD */
+.dash{flex:1;overflow-y:auto;padding:36px;display:none}
+.dash.active{display:block}
+.dw{font-family:'Playfair Display',serif;font-size:26px;margin-bottom:5px;background:linear-gradient(135deg,var(--text),#a5b4fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.ds{color:var(--muted);font-size:13px;margin-bottom:28px}
+.dstats{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:14px;margin-bottom:32px}
+.sc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;transition:border-color var(--t)}
+.sc:hover{border-color:var(--border2)}
+.sl{font-size:11px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+.sv{font-size:28px;font-weight:700}
+.rt{font-size:11px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px}
+.rg{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.rc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;cursor:pointer;transition:border-color var(--t),transform var(--t),box-shadow var(--t)}
+.rc:hover{border-color:rgba(99,102,241,.4);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.rcc{font-size:11px;color:#818cf8;margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.rct{font-size:14px;font-weight:600;margin-bottom:5px;color:var(--text)}
+.rcp{font-size:12px;color:var(--dim);line-height:1.5}
+.de{text-align:center;padding:60px 20px;color:var(--muted)}
+
+/* PAGE VIEW */
+.pv{flex:1;display:none;flex-direction:column;overflow:hidden}
+.pv.active{display:flex}
+.ptop{padding:12px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0;background:var(--surface)}
+.pcb{display:flex;align-items:center;gap:6px;padding:4px 10px;background:var(--s2);border-radius:7px;font-size:12px;color:var(--muted);border:1px solid var(--border);flex-shrink:0}
+.pti{flex:1;background:none;border:none;font-size:20px;font-weight:700;color:var(--text);font-family:'Inter',sans-serif;outline:none;min-width:0}
+.pti::placeholder{color:var(--dim)}
+.psi{font-size:11px;color:var(--muted);white-space:nowrap;flex-shrink:0}
+.psi.saved{color:var(--green)}
+.psi.saving{color:#818cf8}
+
+/* TOOLBAR */
+.tb{padding:8px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:2px;flex-shrink:0;flex-wrap:wrap;background:var(--surface)}
+.fb{background:none;border:none;border-radius:7px;padding:5px 9px;color:var(--muted);cursor:pointer;font-size:12px;font-weight:500;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:4px;transition:background var(--t),color var(--t);white-space:nowrap}
+.fb:hover{background:var(--s2);color:var(--text)}
+.fdiv{width:1px;height:16px;background:var(--border2);margin:0 3px}
+.fb.save-btn{color:#818cf8}
+.fb.save-btn:hover{background:rgba(99,102,241,.12);color:#a5b4fc}
+
+/* EDITOR */
+.pe{flex:1;overflow-y:auto;padding:28px}
+.bc{max-width:720px;margin:0 auto}
+.blk{display:flex;gap:6px;align-items:flex-start;margin-bottom:3px;border-radius:8px;transition:background var(--t)}
+.blk:hover{background:#ffffff03}
+.bh{opacity:0;color:var(--dim);padding:4px;font-size:13px;flex-shrink:0;margin-top:7px;cursor:grab;transition:opacity var(--t)}
+.blk:hover .bh{opacity:1}
+.bco{flex:1;min-width:0}
+.bdel{width:20px;height:20px;background:none;border:none;border-radius:5px;color:transparent;cursor:pointer;flex-shrink:0;margin-top:7px;display:flex;align-items:center;justify-content:center;font-size:12px;transition:color var(--t),background var(--t)}
+.blk:hover .bdel{color:var(--dim)}
+.bdel:hover{color:var(--red)!important;background:rgba(239,68,68,.1)}
+
+/* BLOCK TYPES */
+textarea.bta{width:100%;background:none;border:none;border-radius:7px;padding:6px 8px;color:var(--text);font-family:'Inter',sans-serif;outline:none;resize:none;transition:background var(--t);line-height:1.7}
+textarea.bta:focus{background:#ffffff05}
+textarea.bta::placeholder{color:var(--dim)}
+.bta.para{font-size:15px;min-height:36px}
+.bta.h1{font-size:26px;font-weight:700;font-family:'Playfair Display',serif;line-height:1.25;min-height:44px}
+.bta.h2{font-size:20px;font-weight:600;line-height:1.35;min-height:38px}
+.bta.bul,.bta.num{font-size:15px;min-height:32px}
+.bta.chk{font-size:15px;min-height:32px}
+.bta.chk.done{text-decoration:line-through;color:var(--muted)}
+.bta.qt{font-size:15px;font-style:italic;color:var(--muted);min-height:36px}
+.bta.code{font-family:'JetBrains Mono','Courier New',monospace;font-size:13px;color:#a5f3fc;background:rgba(0,0,0,.3);border:1px solid var(--border2);border-radius:9px;padding:12px 14px;min-height:56px;line-height:1.6}
+.bta.code:focus{background:rgba(0,0,0,.4)}
+
+.bwrap{display:flex;align-items:flex-start;gap:9px;padding:1px 0}
+.bdot{width:6px;height:6px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--a2));margin-top:11px;flex-shrink:0}
+.nidx{min-width:22px;text-align:right;color:#818cf8;font-size:13px;font-weight:600;margin-top:7px;flex-shrink:0}
+.cbox{width:17px;height:17px;border:2px solid var(--border2);border-radius:4px;cursor:pointer;margin-top:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all var(--t);background:transparent;flex-shrink:0}
+.cbox.ck{background:linear-gradient(135deg,var(--accent),var(--a2));border-color:transparent}
+.cbox.ck::after{content:'✓';color:#fff;font-size:10px;font-weight:800}
+.qwrap{border-left:3px solid var(--a2);padding-left:14px;margin:3px 0;border-radius:0 6px 6px 0;background:rgba(139,92,246,.04)}
+.bdivider{border:none;border-top:1px solid var(--border2);margin:8px 0;width:100%}
+
+.abr{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;margin-top:6px;opacity:0;transition:opacity var(--t)}
+.abr:hover{opacity:1!important;background:var(--s2)}
+.bc:hover .abr{opacity:.4}
+.abb{width:24px;height:24px;background:var(--s2);border:1px dashed var(--border2);border-radius:6px;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all var(--t)}
+.abb:hover{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 0 12px rgba(99,102,241,.4)}
+.abl{font-size:12px;color:var(--dim)}
+
+/* MODALS */
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px);padding:20px}
+.mo.open{display:flex}
+.md{background:var(--surface);border:1px solid var(--border2);border-radius:18px;padding:28px;width:100%;max-width:380px;box-shadow:0 24px 60px rgba(0,0,0,.6);animation:popIn .2s ease}
+@keyframes popIn{from{opacity:0;transform:scale(.95) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.mdt{font-size:16px;font-weight:700;margin-bottom:20px;color:var(--text)}
+.fg{margin-bottom:14px}
+.fl{display:block;font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+.fi{width:100%;background:#ffffff07;border:1px solid var(--border);border-radius:9px;padding:10px 12px;color:var(--text);font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:border-color var(--t),background var(--t)}
+.fi:focus{border-color:rgba(99,102,241,.5);background:#ffffff0c}
+.cpr{display:flex;gap:8px;flex-wrap:wrap}
+.csw{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all var(--t)}
+.csw:hover{transform:scale(1.2)}
+.csw.sel{border-color:#fff;box-shadow:0 0 8px rgba(255,255,255,.4)}
+.ma{display:flex;gap:9px;margin-top:22px;justify-content:flex-end}
+.bc2{background:none;border:1px solid var(--border2);border-radius:9px;padding:8px 18px;color:var(--muted);cursor:pointer;font-size:13px;font-family:'Inter',sans-serif;transition:all var(--t)}
+.bc2:hover{background:var(--s2);color:var(--text)}
+.bp{background:linear-gradient(135deg,var(--accent),var(--a2));border:none;border-radius:9px;padding:8px 20px;color:#fff;cursor:pointer;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;transition:opacity var(--t);box-shadow:0 2px 10px rgba(99,102,241,.3)}
+.bp:hover{opacity:.85}
+.bp:disabled{opacity:.4;cursor:not-allowed}
+.bdr{background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);border-radius:9px;padding:8px 20px;color:var(--red);cursor:pointer;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;transition:all var(--t)}
+.bdr:hover{background:rgba(239,68,68,.25)}
+.mal{border-radius:9px;padding:9px 13px;font-size:13px;margin-bottom:13px;display:none}
+.mal.err{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:#fca5a5}
+.mal.ok{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);color:#86efac}
+.mal.show{display:block}
+
+/* TOAST */
+.toast{position:fixed;bottom:22px;right:22px;background:var(--surface);border:1px solid var(--border2);border-radius:11px;padding:11px 18px;font-size:13px;color:var(--text);z-index:999;display:flex;align-items:center;gap:9px;transform:translateY(70px);opacity:0;transition:transform .25s ease,opacity .25s ease;box-shadow:0 8px 28px rgba(0,0,0,.5);backdrop-filter:blur(10px)}
+.toast.show{transform:translateY(0);opacity:1}
+.tdot{width:7px;height:7px;border-radius:50%}
+
+/* LOADING */
+.lo{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px}
+.lo.gone{display:none}
+.spin{width:32px;height:32px;border:3px solid #ffffff10;border-top-color:var(--accent);border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#ffffff15;border-radius:10px}
+::-webkit-scrollbar-thumb:hover{background:#ffffff25}
+</style>
+</head>
+<body>
+
+<div class="lo" id="lo">
+  <div class="spin"></div>
+  <span style="color:var(--muted);font-size:13px">Loading your notebook…</span>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo" onclick="showDash()">✦ MyNotebook</div>
+  <div class="sw">
+    <svg class="si-ic" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input class="si" id="si" placeholder="Search all your notes…" autocomplete="off">
+    <div class="sr" id="sr"></div>
+  </div>
+  <div class="ns"></div>
+  <button class="bi" title="Dashboard" onclick="showDash()">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+  </button>
+  <div class="umw">
+    <button class="ua" id="uab" onclick="togUD()"></button>
+    <div class="ud" id="udd">
+      <div class="udh">
+        <div class="udn" id="udn">—</div>
+        <div class="ude" id="ude">—</div>
+      </div>
+      <div class="udi" onclick="openPwMo()">🔑 Change Password</div>
+      <div class="udi danger" onclick="delAccount()">🗑 Delete Account</div>
+      <div class="udi danger" onclick="doLogout()">→ Sign Out</div>
+    </div>
+  </div>
+</nav>
+
+<div class="ab">
+  <!-- SIDEBAR -->
+  <aside class="sb" id="sb">
+    <div class="sbh">
+      <span class="sbt">Categories</span>
+      <button class="bnc" onclick="openCatMo()">
+        <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> New
+      </button>
+    </div>
+    <div class="cl" id="cl"></div>
+    <div class="sbf">
+      <button class="tsb" onclick="togSB()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l-6-6 6-6"/><path d="M20 18l-6-6 6-6"/></svg>
+        Hide sidebar
+      </button>
+    </div>
+  </aside>
+  <button class="esb" id="esb" onclick="togSB()" title="Show sidebar">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 18l6-6-6-6"/><path d="M4 18l6-6-6-6"/></svg>
+  </button>
+
+  <main class="mn">
+    <!-- DASHBOARD -->
+    <div class="dash active" id="dash">
+      <div class="dw" id="dw">Good morning ☀️</div>
+      <p class="ds">Welcome to your notebook — all notes saved securely in the cloud.</p>
+      <div class="dstats" id="dstats">
+        <div class="sc"><div class="sl">Categories</div><div class="sv" style="color:#818cf8">—</div></div>
+        <div class="sc"><div class="sl">Total Blocks</div><div class="sv" style="color:#c084fc">—</div></div>
+        <div class="sc"><div class="sl">Words Written</div><div class="sv" style="color:#22c55e">—</div></div>
+      </div>
+      <div class="rt">Your Categories</div>
+      <div class="rg" id="rg"></div>
+      <div class="de" id="de" style="display:none">
+        <div style="font-size:48px;margin-bottom:14px">📒</div>
+        <p style="font-size:14px;color:var(--muted)">No categories yet.<br>Click <strong style="color:#818cf8">New</strong> in the sidebar to create one.</p>
+      </div>
+    </div>
+
+    <!-- PAGE VIEW -->
+    <div class="pv" id="pv">
+      <div class="ptop">
+        <div class="pcb">
+          <span id="pcd" style="width:8px;height:8px;border-radius:50%;display:inline-block"></span>
+          <span id="pcn" style="font-size:12px"></span>
+        </div>
+        <input class="pti" id="pti" placeholder="Untitled note…">
+        <span class="psi" id="psi">—</span>
+      </div>
+      <div class="tb">
+        <button class="fb" onclick="ab('para')">¶ Paragraph</button>
+        <button class="fb" onclick="ab('h1')"><b>H1</b></button>
+        <button class="fb" onclick="ab('h2')"><b>H2</b></button>
+        <div class="fdiv"></div>
+        <button class="fb" onclick="ab('bullet')">• Bullets</button>
+        <button class="fb" onclick="ab('numbered')">1. Numbered</button>
+        <button class="fb" onclick="ab('checkbox')">☑ Checklist</button>
+        <div class="fdiv"></div>
+        <button class="fb" onclick="ab('quote')">" Quote</button>
+        <button class="fb" onclick="ab('code')">⌨ Code</button>
+        <button class="fb" onclick="ab('divider')">— Divider</button>
+        <div class="fdiv"></div>
+        <button class="fb save-btn" onclick="savePage()">💾 Save</button>
+      </div>
+      <div class="pe"><div class="bc" id="bc"></div></div>
+    </div>
+  </main>
+</div>
+
+<!-- CATEGORY MODAL -->
+<div class="mo" id="catMo">
+  <div class="md">
+    <div class="mdt" id="catMoT">New Category</div>
+    <div class="fg"><label class="fl">Name</label><input class="fi" id="catN" placeholder="e.g. Work, Ideas, Journal…" maxlength="50"></div>
+    <div class="fg"><label class="fl">Color</label><div class="cpr" id="cpr"></div></div>
+    <div class="ma">
+      <button class="bc2" onclick="closeCatMo()">Cancel</button>
+      <button class="bp" id="catSv" onclick="saveCat()">Create</button>
+    </div>
+  </div>
+</div>
+
+<!-- CHANGE PASSWORD MODAL -->
+<div class="mo" id="pwMo">
+  <div class="md">
+    <div class="mdt">Change Password</div>
+    <div class="mal err" id="pwe"></div>
+    <div class="mal ok" id="pwo"></div>
+    <div class="fg"><label class="fl">Current Password</label><input class="fi" id="pwc" type="password" placeholder="••••••••"></div>
+    <div class="fg"><label class="fl">New Password</label><input class="fi" id="pwn" type="password" placeholder="Min 6 characters"></div>
+    <div class="fg"><label class="fl">Confirm New Password</label><input class="fi" id="pwn2" type="password" placeholder="Re-enter new password"></div>
+    <div class="ma">
+      <button class="bc2" onclick="closePwMo()">Cancel</button>
+      <button class="bp" id="pwBtn" onclick="changePw()">Update Password</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span class="tdot" id="tdot"></span><span id="tmsg"></span></div>
+
+<script>
+const COLORS=['#6366f1','#8b5cf6','#ec4899','#f97316','#22c55e','#eab308','#06b6d4','#ef4444','#a855f7','#14b8a6'];
+let cats=[],activeCat=null,blocks=[],editCatId=null,selColor=COLORS[0],saveTO=null;
+
+async function api(m,p,b){
+  const r=await fetch('/api'+p,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):undefined});
+  return r.json();
+}
+
+async function init(){
+  const me=await api('GET','/me');
+  if(!me.ok){location.href='/auth/login';return;}
+  document.getElementById('uab').textContent=me.username.slice(0,2).toUpperCase();
+  document.getElementById('udn').textContent=me.username;
+  document.getElementById('ude').textContent=me.email||'';
+
+  // color picker
+  COLORS.forEach((c,i)=>{
+    const s=document.createElement('div');s.className='csw'+(i===0?' sel':'');
+    s.style.background=c;s.style.boxShadow=`0 2px 8px ${c}66`;s.dataset.c=c;
+    s.onclick=()=>{document.querySelectorAll('.csw').forEach(x=>x.classList.remove('sel'));s.classList.add('sel');selColor=c;};
+    document.getElementById('cpr').appendChild(s);
+  });
+
+  const h=new Date().getHours();
+  document.getElementById('dw').textContent=h<12?'Good morning ☀️':h<17?'Good afternoon 🌤️':'Good evening 🌙';
+
+  let st;
+  document.getElementById('si').addEventListener('input',e=>{clearTimeout(st);st=setTimeout(()=>doSearch(e.target.value),280);});
+  document.addEventListener('click',e=>{if(!e.target.closest('.sw'))closeSR();if(!e.target.closest('.umw'))closeUD();});
+
+  await loadCats();await loadStats();
+  document.getElementById('lo').classList.add('gone');
+}
+
+// USER MENU
+function togUD(){document.getElementById('udd').classList.toggle('open');}
+function closeUD(){document.getElementById('udd').classList.remove('open');}
+async function doLogout(){await fetch('/auth/logout',{method:'POST'});location.href='/auth/login';}
+
+function openPwMo(){
+  closeUD();
+  ['pwe','pwo'].forEach(id=>{document.getElementById(id).className='mal err'+(id==='pwo'?' ok':'');});
+  ['pwc','pwn','pwn2'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('pwMo').classList.add('open');
+}
+function closePwMo(){document.getElementById('pwMo').classList.remove('open');}
+async function changePw(){
+  const c=document.getElementById('pwc').value,n=document.getElementById('pwn').value,n2=document.getElementById('pwn2').value;
+  if(!c||!n) return moErr('pwe','All fields required.');
+  if(n!==n2) return moErr('pwe','New passwords do not match.');
+  if(n.length<6) return moErr('pwe','Password must be at least 6 characters.');
+  const btn=document.getElementById('pwBtn');btn.disabled=true;
+  const r=await fetch('/auth/change-password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({currentPassword:c,newPassword:n})}).then(r=>r.json());
+  btn.disabled=false;
+  if(r.ok){moOk('pwo','Password updated successfully!');setTimeout(closePwMo,1500);}
+  else moErr('pwe',r.error);
+}
+async function delAccount(){
+  closeUD();
+  const c=prompt('Type DELETE to permanently delete your account and all data:');
+  if(c!=='DELETE')return;
+  await fetch('/api/account',{method:'DELETE'});
+  location.href='/auth/login';
+}
+function moErr(id,m){const e=document.getElementById(id);e.textContent=m;e.className='mal err show';}
+function moOk(id,m){const e=document.getElementById(id);e.textContent=m;e.className='mal ok show';}
+
+// CATEGORIES
+async function loadCats(){
+  const r=await api('GET','/categories');
+  cats=r.data||[];renderSB();renderDash();
+}
+function renderSB(){
+  const cl=document.getElementById('cl');cl.innerHTML='';
+  if(!cats.length){cl.innerHTML='<div style="padding:14px;font-size:12px;color:var(--dim);text-align:center;line-height:1.7">No categories yet.<br>Click <strong style="color:#818cf8">New</strong> to start writing.</div>';return;}
+  cats.forEach(c=>{
+    const d=document.createElement('div');d.className='ci'+(activeCat===c.id?' active':'');
+    d.innerHTML=`<span class="cd" style="background:${c.color};box-shadow:0 0 6px ${c.color}66"></span><span class="cn">${esc(c.name)}</span><div class="ca"><button class="cab" onclick="editCat('${c.id}',event)">✏️</button><button class="cab del" onclick="delCat('${c.id}',event)">🗑</button></div>`;
+    d.addEventListener('click',()=>openCat(c.id));cl.appendChild(d);
+  });
+}
+function renderDash(){
+  const rg=document.getElementById('rg'),de=document.getElementById('de');
+  rg.innerHTML='';de.style.display=cats.length?'none':'block';
+  cats.forEach(c=>{
+    const card=document.createElement('div');card.className='rc';
+    card.innerHTML=`<div class="rcc"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${c.color};box-shadow:0 0 6px ${c.color}"></span>${esc(c.name)}</div><div class="rct">${esc(c.page_title||'Untitled note')}</div><div class="rcp">Click to open →</div>`;
+    card.onclick=()=>openCat(c.id);rg.appendChild(card);
+  });
+}
+async function loadStats(){
+  const r=await api('GET','/stats');
+  document.getElementById('dstats').innerHTML=`
+    <div class="sc"><div class="sl">Categories</div><div class="sv" style="color:#818cf8">${r.categories||0}</div></div>
+    <div class="sc"><div class="sl">Total Blocks</div><div class="sv" style="color:#c084fc">${r.blocks||0}</div></div>
+    <div class="sc"><div class="sl">Words Written</div><div class="sv" style="color:#22c55e">${r.words||0}</div></div>`;
+}
+
+function openCatMo(){editCatId=null;document.getElementById('catN').value='';document.getElementById('catMoT').textContent='New Category';document.getElementById('catSv').textContent='Create';selColor=COLORS[0];document.querySelectorAll('.csw').forEach((s,i)=>s.classList.toggle('sel',i===0));document.getElementById('catMo').classList.add('open');setTimeout(()=>document.getElementById('catN').focus(),80);}
+function editCat(id,e){e.stopPropagation();const c=cats.find(x=>x.id===id);editCatId=id;document.getElementById('catN').value=c.name;document.getElementById('catMoT').textContent='Rename Category';document.getElementById('catSv').textContent='Save';selColor=c.color;document.querySelectorAll('.csw').forEach(s=>s.classList.toggle('sel',s.dataset.c===c.color));document.getElementById('catMo').classList.add('open');setTimeout(()=>document.getElementById('catN').focus(),80);}
+function closeCatMo(){document.getElementById('catMo').classList.remove('open');editCatId=null;}
+async function saveCat(){
+  const name=document.getElementById('catN').value.trim();if(!name)return;
+  const btn=document.getElementById('catSv');btn.disabled=true;
+  if(editCatId){await api('PUT',`/categories/${editCatId}`,{name,color:selColor});toast('Category updated');}
+  else{await api('POST','/categories',{name,color:selColor});toast('Category created');}
+  btn.disabled=false;closeCatMo();await loadCats();await loadStats();
+}
+async function delCat(id,e){
+  e.stopPropagation();if(!confirm('Delete this category and all its content?'))return;
+  await api('DELETE',`/categories/${id}`);
+  if(activeCat===id)showDash();
+  await loadCats();await loadStats();toast('Deleted','var(--red)');
+}
+
+// VIEWS
+function showDash(){activeCat=null;document.getElementById('dash').classList.add('active');document.getElementById('pv').classList.remove('active');renderSB();loadStats();}
+async function openCat(id){
+  const c=cats.find(x=>x.id===id);if(!c)return;
+  activeCat=id;
+  document.getElementById('dash').classList.remove('active');
+  document.getElementById('pv').classList.add('active');
+  document.getElementById('pcd').style.background=c.color;
+  document.getElementById('pcn').textContent=c.name;
+  setSI('loading');renderSB();
+  const r=await api('GET',`/page/${id}`);
+  document.getElementById('pti').value=r.data.title||'';
+  blocks=(r.data.blocks||[]).map(b=>({...b,checked:!!b.checked}));
+  renderBlocks();setSI('saved');
+}
+
+// BLOCKS
+function renderBlocks(){
+  const bc=document.getElementById('bc');bc.innerHTML='';
+  blocks.forEach((b,i)=>bc.appendChild(mkBlk(b,i)));
+  const ar=document.createElement('div');ar.className='abr';
+  ar.innerHTML='<button class="abb" onclick="ab(\'para\')">+</button><span class="abl">Click + or use the toolbar to add content</span>';
+  bc.appendChild(ar);
+}
+function mkTA(cls,ph,i){
+  const ta=document.createElement('textarea');ta.className='bta '+cls;ta.value=blocks[i].text||'';ta.placeholder=ph;ta.rows=1;
+  ta.oninput=function(){this.style.height='auto';this.style.height=this.scrollHeight+'px';blocks[i].text=this.value;markUnsaved();};
+  ta.onkeydown=e=>kd(e,i,ta);
+  setTimeout(()=>{ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';},0);
+  return ta;
+}
+function mkBlk(blk,i){
+  const d=document.createElement('div');d.className='blk';
+  d.innerHTML='<span class="bh">⠿</span>';
+  const co=document.createElement('div');co.className='bco';
+  switch(blk.type){
+    case 'para':co.appendChild(mkTA('para','Write something…',i));break;
+    case 'h1':co.appendChild(mkTA('h1','Heading 1',i));break;
+    case 'h2':co.appendChild(mkTA('h2','Heading 2',i));break;
+    case 'bullet':{const w=document.createElement('div');w.className='bwrap';w.innerHTML='<span class="bdot"></span>';w.appendChild(mkTA('bul','List item',i));co.appendChild(w);break;}
+    case 'numbered':{const w=document.createElement('div');w.className='bwrap';const n=document.createElement('span');n.className='nidx';n.textContent=(i+1)+'.';w.appendChild(n);w.appendChild(mkTA('num','List item',i));co.appendChild(w);break;}
+    case 'checkbox':{const w=document.createElement('div');w.className='bwrap';const cb=document.createElement('div');cb.className='cbox'+(blk.checked?' ck':'');const ta=mkTA('chk'+(blk.checked?' done':''),'To-do item',i);cb.onclick=()=>{blocks[i].checked=!blocks[i].checked;cb.classList.toggle('ck',blocks[i].checked);ta.classList.toggle('done',blocks[i].checked);markUnsaved();};w.appendChild(cb);w.appendChild(ta);co.appendChild(w);break;}
+    case 'quote':{const w=document.createElement('div');w.className='qwrap';w.appendChild(mkTA('qt','Quote or callout…',i));co.appendChild(w);break;}
+    case 'code':co.appendChild(mkTA('code','// Write code here…',i));break;
+    case 'divider':{const hr=document.createElement('hr');hr.className='bdivider';co.appendChild(hr);break;}
+  }
+  const del=document.createElement('button');del.className='bdel';del.innerHTML='✕';del.title='Delete block';
+  del.onclick=()=>{blocks.splice(i,1);markUnsaved();renderBlocks();};
+  d.appendChild(co);d.appendChild(del);return d;
+}
+function kd(e,i,ta){
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();const t=blocks[i]?.type;ab(['h1','h2'].includes(t)?'para':t||'para',i+1);}
+  if(e.key==='Backspace'&&ta.value===''){e.preventDefault();blocks.splice(i,1);markUnsaved();renderBlocks();setTimeout(()=>{const els=document.getElementById('bc').querySelectorAll('.blk');const p=els[Math.max(0,i-1)];if(p){const t=p.querySelector('textarea');if(t){t.focus();t.setSelectionRange(t.value.length,t.value.length);}}},25);}
+}
+function ab(type,atIdx){
+  if(!activeCat)return;
+  const blk={type,text:'',checked:false};
+  if(atIdx!=null)blocks.splice(atIdx,0,blk);else blocks.push(blk);
+  markUnsaved();renderBlocks();
+  const idx=atIdx!=null?atIdx:blocks.length-1;
+  setTimeout(()=>{const els=document.getElementById('bc').querySelectorAll('.blk');if(els[idx]){const t=els[idx].querySelector('textarea');if(t){t.focus();t.setSelectionRange(0,0);}}},30);
+}
+
+// SAVE
+function markUnsaved(){setSI('unsaved');clearTimeout(saveTO);saveTO=setTimeout(savePage,2000);}
+function setSI(s){const e=document.getElementById('psi');const m={saved:'● saved',unsaved:'● unsaved',saving:'● saving…',loading:'loading…'};e.textContent=m[s]||'—';e.className='psi'+(s==='saved'?' saved':s==='saving'?' saving':'');}
+async function savePage(){
+  if(!activeCat)return;setSI('saving');
+  const r=await api('PUT',`/page/${activeCat}`,{title:document.getElementById('pti').value,blocks});
+  setSI(r.ok?'saved':'unsaved');
+  if(r.ok)loadStats();else toast('Save failed — check connection','var(--red)');
+}
+document.getElementById('pti').addEventListener('input',markUnsaved);
+
+// SEARCH
+async function doSearch(q){
+  const sr=document.getElementById('sr');if(!q.trim()){sr.classList.remove('open');return;}
+  const r=await api('GET',`/search?q=${encodeURIComponent(q)}`);
+  const d=r.data||[];
+  if(!d.length){sr.innerHTML=`<div class="sr-empty">No results for "<b>${esc(q)}</b>"</div>`;}
+  else{sr.innerHTML=d.slice(0,20).map(x=>`<div class="sri" onclick="jumpTo('${x.category_id}')"><div class="sri-cat"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${x.color};margin-right:4px;vertical-align:middle"></span>${esc(x.cat_name)}${x.isTitle?' · Title':''}</div><div class="sri-tx">${hl(x.text||'',q)}</div></div>`).join('');}
+  sr.classList.add('open');
+}
+function hl(t,q){if(!t)return'';const i=t.toLowerCase().indexOf(q.toLowerCase());const s=Math.max(0,i-25);return esc(t.slice(s,s+100)).replace(new RegExp(esc(q),'gi'),m=>`<mark>${m}</mark>`);}
+function jumpTo(id){closeSR();openCat(id);}
+function closeSR(){document.getElementById('sr').classList.remove('open');document.getElementById('si').value='';}
+
+// SIDEBAR
+function togSB(){const s=document.getElementById('sb'),e=document.getElementById('esb');s.classList.toggle('hidden');e.classList.toggle('visible',s.classList.contains('hidden'));}
+
+// UTILS
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function toast(msg,color){const t=document.getElementById('toast');document.getElementById('tmsg').textContent=msg;document.getElementById('tdot').style.background=color||'var(--green)';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+
+// Modal close on overlay
+['catMo','pwMo'].forEach(id=>{document.getElementById(id).addEventListener('click',e=>{if(e.target===document.getElementById(id))document.getElementById(id).classList.remove('open');});});
+document.getElementById('catN').addEventListener('keydown',e=>{if(e.key==='Enter')saveCat();});
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyNotebook — Sign In</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0a0d14;--card:#0f132080;--border:#ffffff12;--accent:#6366f1;--a2:#8b5cf6;--text:#f1f5f9;--muted:#94a3b8;--dim:#475569;--green:#22c55e;--red:#ef4444;--inp:#ffffff08}
+html,body{height:100%;min-height:100%}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:30px 20px;overflow-y:auto;position:relative}
+.orb{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0}
+.o1{width:500px;height:500px;background:radial-gradient(circle,rgba(99,102,241,.14),transparent 70%);top:-100px;left:-100px}
+.o2{width:400px;height:400px;background:radial-gradient(circle,rgba(139,92,246,.1),transparent 70%);bottom:-80px;right:-80px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:36px 32px;width:100%;max-width:420px;position:relative;z-index:1;backdrop-filter:blur(20px);box-shadow:0 25px 50px rgba(0,0,0,.5);margin:auto}
+.logo{font-family:'Playfair Display',serif;font-size:26px;text-align:center;background:linear-gradient(135deg,#818cf8,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px}
+.tagline{text-align:center;color:var(--muted);font-size:13px;margin-bottom:24px}
+.tabs{display:flex;background:#ffffff06;border:1px solid var(--border);border-radius:12px;padding:4px;margin-bottom:22px}
+.tab{flex:1;padding:8px;text-align:center;border-radius:9px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);transition:all .2s;user-select:none}
+.tab.active{background:linear-gradient(135deg,rgba(99,102,241,.3),rgba(139,92,246,.3));color:var(--text);border:1px solid rgba(99,102,241,.3)}
+.al{border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:14px;display:none;line-height:1.5;animation:fi .2s ease}
+@keyframes fi{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.al.err{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:#fca5a5}
+.al.suc{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);color:#86efac}
+.al.show{display:block}
+.fg{margin-bottom:13px}
+label{display:block;font-size:11px;color:var(--muted);margin-bottom:5px;font-weight:600;letter-spacing:.4px;text-transform:uppercase}
+input[type=text],input[type=email],input[type=password]{width:100%;background:var(--inp);border:1px solid var(--border);border-radius:10px;padding:11px 13px;color:var(--text);font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s,background .2s}
+input:focus{border-color:rgba(99,102,241,.55);background:#ffffff0d}
+input::placeholder{color:var(--dim)}
+.hint{font-size:11px;color:var(--dim);margin-top:4px}
+.hint.ok{color:var(--green)}
+.hint.bad{color:var(--red)}
+.pw-bar{height:3px;border-radius:2px;margin-top:6px;background:#ffffff10;overflow:hidden}
+.pw-fill{height:100%;width:0;border-radius:2px;transition:width .3s,background .3s}
+.btn{width:100%;background:linear-gradient(135deg,#6366f1,#8b5cf6);border:none;border-radius:11px;padding:13px;color:#fff;font-size:14px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;margin-top:6px;transition:opacity .2s,transform .1s;letter-spacing:.3px}
+.btn:hover{opacity:.88}
+.btn:active{transform:scale(.99)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.lnk{text-align:center;font-size:13px;color:var(--muted);margin-top:16px}
+.lnk span{color:#818cf8;cursor:pointer;font-weight:500}
+.lnk span:hover{text-decoration:underline}
+.feats{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:18px}
+.feat{background:#ffffff05;border:1px solid var(--border);border-radius:9px;padding:8px 10px;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
+</style>
+</head>
+<body>
+<div class="orb o1"></div>
+<div class="orb o2"></div>
+
+<div class="card">
+  <div class="logo">✦ MyNotebook</div>
+  <div class="tagline">Your personal space for notes, ideas & records</div>
+
+  <div class="tabs">
+    <div class="tab active" id="tl" onclick="show('login')">Sign In</div>
+    <div class="tab" id="tr" onclick="show('register')">Create Account</div>
+  </div>
+
+  <div class="al err" id="aerr"></div>
+  <div class="al suc" id="asuc"></div>
+
+  <!-- LOGIN -->
+  <div id="ls">
+    <div class="fg">
+      <label>Username or Email</label>
+      <input type="text" id="ll" placeholder="yourname or you@email.com" autocomplete="username">
+    </div>
+    <div class="fg">
+      <label>Password</label>
+      <input type="password" id="lp" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn" id="bl" onclick="doLogin()">Sign In →</button>
+    <div class="lnk">Don't have an account? <span onclick="show('register')">Create one free</span></div>
+  </div>
+
+  <!-- REGISTER -->
+  <div id="rs" style="display:none">
+    <div class="feats">
+      <div class="feat">📝 Rich text blocks</div>
+      <div class="feat">🔍 Full search</div>
+      <div class="feat">📂 Categories</div>
+      <div class="feat">☁️ Saved forever</div>
+    </div>
+    <div class="fg">
+      <label>Username</label>
+      <input type="text" id="ru" placeholder="yourname" autocomplete="username" oninput="chkUser(this)">
+      <div class="hint" id="uh">3–30 chars · letters, numbers, underscore</div>
+    </div>
+    <div class="fg">
+      <label>Email</label>
+      <input type="email" id="re" placeholder="you@email.com" autocomplete="email">
+    </div>
+    <div class="fg">
+      <label>Password</label>
+      <input type="password" id="rp" placeholder="At least 6 characters" autocomplete="new-password" oninput="chkPw(this.value)">
+      <div class="pw-bar"><div class="pw-fill" id="pwf"></div></div>
+    </div>
+    <div class="fg">
+      <label>Confirm Password</label>
+      <input type="password" id="rp2" placeholder="Re-enter password" autocomplete="new-password">
+    </div>
+    <button class="btn" id="br" onclick="doRegister()">Create Free Account →</button>
+    <div class="lnk">Already have an account? <span onclick="show('login')">Sign in</span></div>
+  </div>
+</div>
+
+<script>
+function show(t) {
+  document.getElementById('ls').style.display = t==='login' ? 'block' : 'none';
+  document.getElementById('rs').style.display = t==='register' ? 'block' : 'none';
+  document.getElementById('tl').className = 'tab' + (t==='login' ? ' active' : '');
+  document.getElementById('tr').className = 'tab' + (t==='register' ? ' active' : '');
+  clr();
+}
+function err(m){const e=document.getElementById('aerr');e.textContent=m;e.className='al err show';document.getElementById('asuc').className='al suc';}
+function suc(m){const s=document.getElementById('asuc');s.textContent=m;s.className='al suc show';document.getElementById('aerr').className='al err';}
+function clr(){document.getElementById('aerr').className='al err';document.getElementById('asuc').className='al suc';}
+
+function chkUser(el){
+  const h=document.getElementById('uh'),v=el.value;
+  if(!v){h.textContent='3–30 chars · letters, numbers, underscore';h.className='hint';return;}
+  if(/^[a-zA-Z0-9_]{3,30}$/.test(v)){h.textContent='✓ Looks good!';h.className='hint ok';}
+  else{h.textContent='Only letters, numbers and underscore (3-30 chars)';h.className='hint bad';}
+}
+
+function chkPw(p){
+  const f=document.getElementById('pwf');
+  let s=0;
+  if(p.length>=6)s++;
+  if(p.length>=10)s++;
+  if(/[A-Z]/.test(p)&&/[0-9]/.test(p))s++;
+  if(/[^a-zA-Z0-9]/.test(p))s++;
+  f.style.width=['0%','30%','55%','78%','100%'][s];
+  f.style.background=['#ffffff10','#ef4444','#f97316','#6366f1','#22c55e'][s];
+}
+
+async function doLogin(){
+  const btn=document.getElementById('bl');
+  btn.disabled=true;btn.textContent='Signing in…';
+  const r=await fetch('/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({login:document.getElementById('ll').value,password:document.getElementById('lp').value})
+  }).then(r=>r.json());
+  if(r.ok){suc('Welcome back! Redirecting…');setTimeout(()=>location.href='/',600);}
+  else{err(r.error);btn.disabled=false;btn.textContent='Sign In →';}
+}
+
+async function doRegister(){
+  const p1=document.getElementById('rp').value,p2=document.getElementById('rp2').value;
+  if(p1!==p2)return err('Passwords do not match.');
+  const btn=document.getElementById('br');
+  btn.disabled=true;btn.textContent='Creating account…';
+  const r=await fetch('/auth/register',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({username:document.getElementById('ru').value,email:document.getElementById('re').value,password:p1})
+  }).then(r=>r.json());
+  if(r.ok){suc('Account created! Taking you in…');setTimeout(()=>location.href='/',700);}
+  else{err(r.error);btn.disabled=false;btn.textContent='Create Free Account →';}
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Enter')return;
+  if(document.getElementById('ls').style.display!=='none')doLogin();
+  else doRegister();
+});
+</script>
+</body>
+</html>
