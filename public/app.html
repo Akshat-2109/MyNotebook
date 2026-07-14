@@ -265,7 +265,7 @@ textarea.bta::placeholder{color:var(--dim)}
   <main class="mn">
     <!-- DASHBOARD -->
     <div class="dash active" id="dash">
-      <div class="dw" id="dw">Good morning ☀️</div>
+      <div class="dw" id="dw"></div>
       <p class="ds">Welcome to your notebook — all notes saved securely in the cloud.</p>
       <div class="dstats" id="dstats">
         <div class="sc"><div class="sl">Categories</div><div class="sv" style="color:#818cf8">—</div></div>
@@ -314,7 +314,7 @@ textarea.bta::placeholder{color:var(--dim)}
 <div class="mo" id="catMo">
   <div class="md">
     <div class="mdt" id="catMoT">New Category</div>
-    <div class="fg"><label class="fl">Name</label><input class="fi" id="catN" placeholder="e.g. Work, Ideas, Journal…" maxlength="50"></div>
+    <div class="fg"><label class="fl">Name</label><input class="fi" id="catN" placeholder="e.g. Work, Ideas, Journal…" maxlength="50" autocomplete="off" type="text"></div>
     <div class="fg"><label class="fl">Color</label><div class="cpr" id="cpr"></div></div>
     <div class="ma">
       <button class="bc2" onclick="closeCatMo()">Cancel</button>
@@ -369,7 +369,7 @@ async function init(){
   document.getElementById('dw').textContent=h<12?'Good morning ☀️':h<17?'Good afternoon 🌤️':'Good evening 🌙';
 
   let st;
-  document.getElementById('si').addEventListener('input',e=>{clearTimeout(st);st=setTimeout(()=>doSearch(e.target.value),280);});
+  const siEl=document.getElementById('si');siEl.value='';siEl.addEventListener('input',e=>{clearTimeout(st);st=setTimeout(()=>doSearch(e.target.value),280);});
   document.addEventListener('click',e=>{if(!e.target.closest('.sw'))closeSR();if(!e.target.closest('.umw'))closeUD();});
 
   await loadCats();await loadStats();
@@ -446,9 +446,15 @@ function closeCatMo(){document.getElementById('catMo').classList.remove('open');
 async function saveCat(){
   const name=document.getElementById('catN').value.trim();if(!name)return;
   const btn=document.getElementById('catSv');btn.disabled=true;
+  // Optimistic UI — show immediately
+  if(!editCatId){
+    const tempCat={id:'temp_'+Date.now(),name,color:selColor,page_title:''};
+    cats.push(tempCat);renderSB();renderDash();
+  }
+  closeCatMo();
   if(editCatId){await api('PUT',`/categories/${editCatId}`,{name,color:selColor});toast('Category updated');}
   else{await api('POST','/categories',{name,color:selColor});toast('Category created');}
-  btn.disabled=false;closeCatMo();await loadCats();await loadStats();
+  btn.disabled=false;await loadCats();await loadStats();
 }
 async function delCat(id,e){
   e.stopPropagation();if(!confirm('Delete this category and all its content?'))return;
